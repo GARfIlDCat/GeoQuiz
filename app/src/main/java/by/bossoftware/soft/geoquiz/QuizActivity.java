@@ -1,5 +1,7 @@
 package by.bossoftware.soft.geoquiz;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -12,13 +14,24 @@ import static android.view.View.OnClickListener;
 
 public class QuizActivity extends AppCompatActivity {
 
+    private static final String EXTRA_ANSWER_IS_TRUE =
+            "by.bossoftware.soft.geoquiz.answer_is_true";
+    private static final int REQUEST_CODE_CHEAT = 0;
+
     private static final String KEY_INDEX = "index";
+    private Button mCheatButton;
 
     private Button mTrueButton;
     private Button mFalseButton;
 
     private ImageButton mNextButton;
     private ImageButton mPrevButton;
+
+    public static Intent newIntent(Context packageContext, boolean answerIsTrue) {
+        Intent intent = new Intent(packageContext, CheatActivity.class);
+        intent.putExtra(EXTRA_ANSWER_IS_TRUE, answerIsTrue);
+        return intent;
+    }
 
     private TextView mQuestionTextView;
 
@@ -46,7 +59,6 @@ public class QuizActivity extends AppCompatActivity {
                 mNextButton.callOnClick();
             }
         });
-        updateQuestion();
 
         mTrueButton = (Button) findViewById(R.id.true_button);
         mTrueButton.setOnClickListener(new OnClickListener() {
@@ -85,6 +97,19 @@ public class QuizActivity extends AppCompatActivity {
                 updateQuestion();
             }
         });
+
+        mCheatButton = (Button) findViewById(R.id.cheat_button);
+        mCheatButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
+                Intent intent = newIntent(QuizActivity.this, answerIsTrue);
+                startActivityForResult(intent, REQUEST_CODE_CHEAT);
+            }
+        });
+
+        updateQuestion();
+
     }
 
     private void checkAnswer(boolean userPressedTrue) {
